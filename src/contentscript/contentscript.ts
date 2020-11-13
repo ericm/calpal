@@ -4,17 +4,16 @@ const isThisContentscript = true;
 console.log('isThisContentscript', isThisContentscript);
 
 const intialSetup = () => {
-
   chrome.storage.local.set({
     canvas: {
-      token: ""
-    }
-  })
-}
+      token: '',
+    },
+  });
+};
 
 interface ReqProps {
-  Method: string,
-  URL: string,
+  Method: string;
+  URL: string;
 }
 
 async function request(props: ReqProps): Promise<any> {
@@ -23,4 +22,7 @@ async function request(props: ReqProps): Promise<any> {
   return body;
 }
 
-
+console.log(chrome.storage.local);
+chrome.identity.getAuthToken({ interactive: true }, (token) => {
+  console.log(token);
+});
