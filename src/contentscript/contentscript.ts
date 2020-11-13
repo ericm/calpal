@@ -21,8 +21,3 @@ async function request(props: ReqProps): Promise<any> {
   const body = await resp.json();
   return body;
 }
-
-console.log(chrome.storage.local);
-chrome.identity.getAuthToken({ interactive: true }, (token) => {
-  console.log(token);
-});

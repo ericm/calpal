@@ -2,9 +2,15 @@
   "manifest_version": 2,
   "name": "CalPal",
   "short_name": "CalPal",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Chrome Extension to manage/automate your time spent.",
-  "permissions": ["tabs", "activeTab", "storage", "identity"],
+  "permissions": [
+    "identity",
+    "https://ssl.gstatic.com/",
+    "https://www.googleapis.com/",
+    "https://accounts.google.com/",
+    "storage"
+  ],
   "browser_action": {
     "default_popup": "popup/index.html",
     "default_title": "CalPal"
@@ -23,5 +29,8 @@
     "scripts": ["background.js"],
     "persistent": false
   },
-  "content_security_policy": "script-src 'self' 'unsafe-eval' 'sha256-...='; object-src 'self'"
+  "oauth2": {
+    "client_id": "975648282399-edhu31c0h04vr0s8hdr5qdp1hpcteqnu.apps.googleusercontent.com",
+    "scopes": ["https://www.googleapis.com/auth/calendar"]
+  }
 }
