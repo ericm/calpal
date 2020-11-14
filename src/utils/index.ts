@@ -1,5 +1,5 @@
 export enum URL {
-  canvas = 'https://ucc.instructure.com/',
+  canvas = 'https://ucc.instructure.com/api/v1',
   calendar = 'https://www.googleapis.com/calendar/v3/',
 }
 
