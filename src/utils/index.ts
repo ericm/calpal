@@ -1,5 +1,5 @@
 export enum URL {
-  canvas = 'https://ucc.instructure.com/',
+  canvas = 'https://ucc.instructure.com/api/v1',
   calendar = 'https://www.googleapis.com/calendar/v3/',
 }
 
@@ -7,10 +7,14 @@ export interface ReqProps {
   Method: 'GET' | 'POST';
   Slug: string;
   URL: URL;
+  CORS: 'cors' | 'no-cors';
 }
 
 export async function request<T extends Object>(props: ReqProps): Promise<T> {
-  const resp = await fetch(props.URL, { method: props.Method });
+  const resp = await fetch(props.URL + props.Slug, {
+    method: props.Method,
+    mode: props.CORS,
+  });
   const body = (await resp.json()) as T;
   return body;
 }
