@@ -3,6 +3,7 @@ export interface Assignment {
   due: Date;
   summary: string;
   link: string;
+  duration?: number;
 }
 
 export function getAssignments(): Assignment[] {

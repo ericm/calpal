@@ -1,4 +1,5 @@
 import { throws } from 'assert';
+import { Assignment } from '../canvas';
 import { URL, ReqProps, request } from '../utils';
 
 export interface CalendarList {
@@ -222,11 +223,59 @@ export interface EventAdd {
   };
 }
 
-export default class {
+export interface FreeBusyReq {
+  timeMin: string;
+  timeMax: string;
+  timeZone?: string;
+  groupExpansionMax?: number;
+  calendarExpansionMax?: number;
+  items: {
+    id: string;
+  }[];
+}
+
+export interface FreeBusy {
+  kind: 'calendar#freeBusy';
+  timeMin: string;
+  timeMax: string;
+  groups: {
+    [key: string]: {
+      errors: [
+        {
+          domain: string;
+          reason: string;
+        }
+      ];
+      calendars: [string];
+    };
+  };
+  calendars: {
+    [key: string]: {
+      errors: {
+        domain: string;
+        reason: string;
+      }[];
+      busy: {
+        start: string;
+        end: string;
+      }[];
+    };
+  };
+}
+
+const addDays = function (date: Date, days: number) {
+  date.setDate(date.getDate() + days);
+  return date;
+};
+
+export default class Calendar {
   private $token: string;
   private $list: CalendarList[];
   private $eventsList: Event[];
   private $selected = 0;
+  static DEFAULT_HOURS = 2;
+  static DAY_START = 9;
+  static DAY_END = 18;
 
   constructor(token: string) {
     this.$token = token;
@@ -309,5 +358,63 @@ export default class {
       `calendars/${this.getCalendar().id}/events/${id}`,
       event
     );
+  }
+
+  public async getFreeBusy(due: Date): Promise<FreeBusy> {
+    const body: FreeBusyReq = {
+      timeMin: new Date().toISOString(),
+      timeMax: due.toISOString(),
+      items: [{ id: this.getCalendar().id }],
+    };
+    return await this.post('freeBusy', body);
+  }
+
+  public async freeSpot(assignment: Assignment) {
+    const data = await this.getFreeBusy(assignment.due);
+    const busy = data.calendars[this.getCalendar().id]?.busy ?? [];
+    const duration = assignment.duration ?? Calendar.DEFAULT_HOURS;
+
+    let free: { start?: [number, number]; end?: [number, number] }[][] = [];
+    for (let i = 0; i < 7; i++) {
+      free.push([]);
+    }
+
+    const numDays =
+      Math.abs(assignment.due.getTime() - Date.now()) / (1000 * 60 * 60 * 24);
+
+    if (busy.length === 0) {
+      for (let i = 0; i < numDays; i++) {
+        const date = addDays(new Date(), i);
+        date.setHours(Calendar.DAY_START);
+        const start = date.toISOString();
+        date.setHours(Calendar.DAY_END);
+        const end = date.toISOString();
+        busy.push({
+          start,
+          end,
+        });
+      }
+    }
+    for (let b of busy) {
+      let dayStart = new Date(b.start);
+      let dayEnd = new Date(b.end);
+      free[dayStart.getDay()].push({
+        start: [dayStart.getHours(), dayStart.getMinutes()],
+      });
+      free[dayEnd.getDay()].push({
+        end: [dayStart.getHours(), dayStart.getMinutes()],
+      });
+    }
+    for (let i = 0; i < numDays; i++) {
+      const date = addDays(new Date(), i);
+      for (let time of free[date.getDay()]) {
+        let possibleTime = new Date();
+        if (time.end) {
+          // Possible start time.
+          // Check for free stuff.
+        } else if (time.start) {
+        }
+      }
+    }
   }
 }
