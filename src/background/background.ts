@@ -1,10 +1,7 @@
 import * as utils from '../utils';
-
-const isThisBackground = true;
-// console.log('isThisBackground', isThisBackground);
+import Calendar from '../calendar';
 
 let canvas;
-
 class Canvas {
   private $token: string;
   constructor(token: string) {
@@ -28,8 +25,11 @@ class Canvas {
   }
 }
 
-chrome.identity.getAuthToken({ interactive: true }, (token) => {
-  // console.log(token);
+// Init calendar.
+chrome.identity.getAuthToken({ interactive: true }, async (token) => {
+  const calendar = new Calendar(token);
+  const cals = await calendar.getCalendars();
+  console.log('Calendars:', cals.items);
 });
 
 const setValues = () => {
