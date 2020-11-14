@@ -1,34 +1,44 @@
 import React from 'react';
 import './App.css';
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
-import { Button, TextField, createStyles, makeStyles, Step, Stepper, StepLabel } from "@material-ui/core";
-
+import {
+  Button,
+  TextField,
+  createStyles,
+  makeStyles,
+  Step,
+  Stepper,
+  StepLabel,
+} from '@material-ui/core';
 
 const theme = createMuiTheme({
   palette: {
     primary: {
       main: '#cf77d9',
-      light: '#cf77d9'
+      light: '#cf77d9',
     },
     secondary: {
       main: '#e6e6e6',
-      dark: '#2c2a47'
+      dark: '#2c2a47',
     },
-  }
-})
+  },
+});
 
-const steps = ["Provide Canvas API Token", "Authorize access to your Google Calendar"]
+const steps = [
+  'Provide Canvas API Token',
+  'Authorize access to your Google Calendar',
+];
 
 const getStep = (stepIndex: number) => {
-  return steps[stepIndex]
-}
+  return steps[stepIndex];
+};
 
 const useStyles = makeStyles((theme) =>
   createStyles({
     input: {
-      color: "white"
-    }
-  }),
+      color: 'white',
+    },
+  })
 );
 
 function App() {
@@ -38,11 +48,11 @@ function App() {
 
   const handleNext = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
-  }
+  };
 
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
-  }
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -61,17 +71,20 @@ function App() {
         </Stepper>
 
         <div>
-          <TextField id="input-with-icon-grid" label="Canvas API Token" color="primary" InputProps={{ className: classes.input }} />
-          <Button onClick={handleNext} color="primary" variant="contained">Next</Button>
-          <Button onClick={handleBack} color="secondary" variant="contained">Back</Button>
-
+          <TextField
+            id="input-with-icon-grid"
+            label="Canvas API Token"
+            color="primary"
+            InputProps={{ className: classes.input }}
+          />
+          <Button onClick={handleNext} color="primary" variant="contained">
+            Next
+          </Button>
+          <Button onClick={handleBack} color="secondary" variant="contained">
+            Back
+          </Button>
         </div>
-
-        <div className="oauthGrant">
-          <Button onClick={handleNext} color="primary" variant="contained">Authorize google calendar</Button>
-
-        </div>
-      </div >
+      </div>
     </ThemeProvider>
   );
 }
