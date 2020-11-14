@@ -57,33 +57,13 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <div className="App">
-        <header>
+        <header style={{ paddingBottom: 20 }}>
           <h1>CalPal</h1>
           <small>Automating assignments, a few clicks away...</small>
         </header>
-
-        <Stepper activeStep={activeStep} alternativeLabel>
-          {steps.map((label) => (
-            <Step key={label}>
-              <StepLabel>{label}</StepLabel>
-            </Step>
-          ))}
-        </Stepper>
-
-        <div>
-          <TextField
-            id="input-with-icon-grid"
-            label="Canvas API Token"
-            color="primary"
-            InputProps={{ className: classes.input }}
-          />
-          <Button onClick={handleNext} color="primary" variant="contained">
-            Next
-          </Button>
-          <Button onClick={handleBack} color="secondary" variant="contained">
-            Back
-          </Button>
-        </div>
+        <Button variant="outlined" color="secondary">
+          Authenticate Canvas
+        </Button>
       </div>
     </ThemeProvider>
   );
