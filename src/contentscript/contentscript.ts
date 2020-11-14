@@ -11,13 +11,18 @@ const intialSetup = () => {
   });
 };
 
+enum URL {
+  canvas = 'https://ucc.instructure.com',
+  calendar = 'https://www.googleapis.com/auth/calendar',
+}
 interface ReqProps {
-  Method: string;
-  URL: string;
+  Method: 'GET' | 'POST';
+  Slug: string;
+  URL: URL;
 }
 
-async function request(props: ReqProps): Promise<any> {
+async function request<T extends Object>(props: ReqProps): Promise<T> {
   const resp = await fetch(props.URL, { method: props.Method });
-  const body = await resp.json();
+  const body = (await resp.json()) as T;
   return body;
 }
