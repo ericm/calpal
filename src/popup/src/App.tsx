@@ -6,6 +6,7 @@ import {
   TextField,
   createStyles,
   makeStyles,
+  Input,
   Step,
   Stepper,
   StepLabel,
@@ -72,16 +73,14 @@ function App() {
           <h1>CalPal</h1>
           <small>Automating assignments, a few clicks away...</small>
         </header>
-        <TextField
+        <Input
           id="calendarid"
           className={classes.input}
           value={calendarID}
-          color="primary"
-          style={{
-            color: '#fff !important',
-          }}
-          label="Calendar name"
-        ></TextField>
+          color="secondary"
+          placeholder="Calendar ID"
+          // label="Calendar name"
+        ></Input>
 
         <Button
           variant="contained"
