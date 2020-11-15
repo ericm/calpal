@@ -3,11 +3,11 @@
   padding: 0;
 }
 
-
-
-html, body, .App {
+html,
+body,
+.App {
   min-width: 400px;
-  height: 1000px;
+  height: 400px;
   top: 0;
   right: 0;
   overflow-y: hidden;
@@ -43,7 +43,7 @@ div {
   margin: 2em 0;
 }
 
-label{
+label {
   display: block;
 }
 

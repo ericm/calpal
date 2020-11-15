@@ -406,6 +406,13 @@ export default class Calendar {
     return await this.post('freeBusy', body);
   }
 
+  public async notifyUser(due: Date): Promise<boolean> {
+    let not = new Notification('CalPal', {
+      body: 'Are you finished your assignment? Want to schedule more time?',
+    });
+    return false;
+  }
+
   public async freeSpot(assignment: Assignment) {
     const data = await this.getFreeBusy(assignment.due);
     const busy = data.calendars[this.getCalendar().id]?.busy ?? [];

@@ -12,6 +12,8 @@ import {
   StepLabel,
 } from '@material-ui/core';
 
+let calendarid: string;
+
 const theme = createMuiTheme({
   palette: {
     primary: {
@@ -43,34 +45,28 @@ const useStyles = makeStyles((theme) =>
     },
     btn: {
       '&:hover': {
-        backgroundColor: '#d69bdd'
-      }
-    }
+        backgroundColor: '#d69bdd',
+      },
+    },
   })
 );
 
-function App() {
-  const [activeStep, setActiveStep] = React.useState(0);
-
+const App = () => {
   const [calendarID, setCalendarID] = React.useState('');
   React.useEffect(() => {
     chrome.storage.local.get(['calendarID'], function (result) {
-      console.log(result.calendarID);
+      console.log('calendarid: ', result);
       setCalendarID(result.calendarID);
     });
   }, []);
 
   const classes = useStyles();
 
-  const handleNext = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
-  };
+  chrome.storage.local.get(['calendarID'], function (result) {
+    calendarid = result.calendarID;
+    console.log(calendarid);
+  });
 
-  const handleBack = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
-  };
-
-  const setCalendarSummary = () => {};
   return (
     <ThemeProvider theme={theme}>
       <div className="App">
@@ -78,33 +74,44 @@ function App() {
           <h1>CalPal</h1>
           <small>Automating assignments, a few clicks away...</small>
         </header>
-        <Input
-          id="calendarid"
-          className={classes.input}
-          value={calendarID}
-          color="secondary"
-          placeholder="Calendar ID"
-        ></Input>
+        {calendarid == '' && (
+          <div>
+            <Input
+              id="calendarid"
+              className={classes.input}
+              value={calendarID}
+              color="secondary"
+              placeholder="Calendar ID"
+              onChange={(e) => setCalendarID(e.target.value)}
+            ></Input>
 
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => {
-            chrome.storage.local.set({
-              calendarID: (document.getElementById('calendarid') as any).value,
-            });
-            chrome.storage.local.get(['calendarID'], function (result) {
-              console.log(result.calendarSummary);
-            });
-            setTimeout(chrome.runtime.reload, 1000);
-          }}
-          className={classes.btn}
-        >
-          Save
-        </Button>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => {
+                chrome.storage.local.set({
+                  calendarID: (document.getElementById('calendarid') as any)
+                    .value,
+                });
+                chrome.storage.local.get(['calendarID'], function (result) {
+                  console.log(result.calendarSummary);
+                });
+                setTimeout(chrome.runtime.reload, 1000);
+              }}
+              className={classes.btn}
+            >
+              Save
+            </Button>
+          </div>
+        )}
+        {!!calendarid && calendarid != '' && (
+          <Button variant="contained" color="primary" className={classes.btn}>
+            Reschedule
+          </Button>
+        )}
       </div>
     </ThemeProvider>
   );
-}
+};
 
 export default App;
