@@ -267,6 +267,11 @@ const addDays = function (date: Date, days: number) {
   date.setDate(date.getDate() + days);
   return date;
 };
+function diff_hours(dt2: Date, dt1: Date): number {
+  var diff = (dt2.getTime() - dt1.getTime()) / 1000;
+  diff /= 60 * 60;
+  return Math.abs(Math.round(diff));
+}
 
 export default class Calendar {
   static DEFAULT_HOURS = 2;
@@ -407,29 +412,53 @@ export default class Calendar {
   }
 
   public async freeSpot(assignment: Assignment) {
-    const data = await this.getFreeBusy(assignment.due);
-    const busy = data.calendars[this.getCalendar().id]?.busy ?? [];
-    busy.concat(data.calendars[await this.getCanvasID()]?.busy);
-    const duration = assignment.duration ?? Calendar.DEFAULT_HOURS;
+    let events = (await this.getEvents()).items;
+    events = events.concat((await this.$canvas!!.getEvents()).items);
+    events = events.sort(
+      (event, next) =>
+        new Date(event.end.dateTime ?? event.end.date).getTime() -
+        new Date(next.end.dateTime ?? next.end.date).getTime()
+    );
+    events = events.filter(
+      (event) => new Date(event.end.dateTime ?? event.end.date) > new Date()
+    );
+    if (!assignment.duration) {
+      assignment.duration = Calendar.DEFAULT_HOURS;
+    }
 
     const numDays =
       Math.abs(assignment.due.getTime() - Date.now()) / (1000 * 60 * 60 * 24);
 
-    if (busy.length === 0) {
-      for (let i = 0; i < numDays; i++) {
-        const date = addDays(new Date(), i);
-        date.setHours(Calendar.DAY_START);
-        const start = date.toISOString();
-        date.setHours(Calendar.DAY_END);
-        const end = date.toISOString();
-        busy.push({
-          start,
-          end,
-        });
+    let maxSpace: { start: Date; end: Date; diff: number };
+    for (let i = 0; i < events.length - 1; i++) {
+      const event = events[i];
+      const nextEvent = events[i + 1];
+      const end = new Date(event.end.dateTime ?? event.end.date);
+      if (end > assignment.due) {
+        break;
+      }
+      const start = new Date(nextEvent.start.dateTime ?? nextEvent.start.date);
+      const hours = diff_hours(start, end);
+      if (
+        start.getHours() < Calendar.DAY_START ||
+        end.getHours() < Calendar.DAY_END
+      ) {
+        continue;
+      }
+      if (hours > assignment.duration && start.getDate() == end.getDate()) {
+        if (maxSpace) {
+          if (hours > maxSpace.diff) {
+            maxSpace = { start, end, diff: hours };
+          }
+        } else {
+          maxSpace = { start, end, diff: hours };
+        }
       }
     }
-    for (let i = 0; i < numDays; i++) {
-      const date = addDays(new Date(), i);
+    console.log(maxSpace);
+    if (!maxSpace && assignment.duration > 1) {
+      assignment.duration--;
+      await this.freeSpot(assignment);
     }
   }
 }

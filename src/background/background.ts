@@ -22,13 +22,10 @@ chrome.identity.getAuthToken({ interactive: true }, async (token) => {
   });
 
   for (let assignment of assignments) {
-    const event = events.find((val) => val.htmlLink === assignment.link);
+    const event = events.find((val) => val.summary === assignment.title);
     if (!event) {
       console.log('Creating event', assignment);
-      //  const add: EventAdd = {
-      //    summary: assignment.summary
-      //  }
-      //  calendar.createEvent()
+      await calendar.freeSpot(assignment);
     }
   }
 });
