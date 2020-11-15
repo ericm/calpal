@@ -20,3 +20,5 @@ All you need to automate your assignments.
 - Create a new project
 - Go to APIs & Services, and enable a new `Google Calendar API`
 - On the left-hand-side, click on credentials, create and copy your OAuth credentials to the manifest.json file's ``"oauth2"`` section
+
+### and.... that's all, compile the code with one of the above commands, and you're ready to go
