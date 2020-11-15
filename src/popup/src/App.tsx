@@ -6,6 +6,7 @@ import {
   TextField,
   createStyles,
   makeStyles,
+  Input,
   Step,
   Stepper,
   StepLabel,
@@ -40,6 +41,11 @@ const useStyles = makeStyles((theme) =>
     input: {
       color: 'white',
     },
+    btn: {
+      '&:hover': {
+        backgroundColor: '#d69bdd'
+      }
+    }
   })
 );
 
@@ -72,16 +78,13 @@ function App() {
           <h1>CalPal</h1>
           <small>Automating assignments, a few clicks away...</small>
         </header>
-        <TextField
+        <Input
           id="calendarid"
           className={classes.input}
           value={calendarID}
-          color="primary"
-          style={{
-            color: '#fff !important',
-          }}
-          label="Calendar name"
-        ></TextField>
+          color="secondary"
+          placeholder="Calendar ID"
+        ></Input>
 
         <Button
           variant="contained"
@@ -95,6 +98,7 @@ function App() {
             });
             setTimeout(chrome.runtime.reload, 1000);
           }}
+          className={classes.btn}
         >
           Save
         </Button>
