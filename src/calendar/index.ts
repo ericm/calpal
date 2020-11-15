@@ -402,6 +402,22 @@ export default class Calendar {
     );
   }
 
+  public async getAssTime(assignment: Assignment): Promise<number> {
+    return new Promise<number>((resolve) => {
+      chrome.storage.local.get(['assignments'], function (result) {
+        if (!!result.assignments) {
+          for (let ass of result.assignments) {
+            if (ass.title == assignment.title) {
+              resolve(ass.time);
+            }
+          }
+          resolve(2);
+        }
+      });
+      resolve(2);
+    });
+  }
+
   public async setNewTime(
     assignment: Assignment,
     newTime: number
@@ -459,7 +475,8 @@ export default class Calendar {
       (event) => new Date(event.end.dateTime ?? event.end.date) > new Date()
     );
     if (!assignment.duration) {
-      assignment.duration = Calendar.DEFAULT_HOURS;
+      // assignment.duration = Calendar.DEFAULT_HOURS;
+      assignment.duration = await this.getAssTime(assignment);
     }
 
     const numDays =
