@@ -3,10 +3,10 @@ import Canvas from '../canvas';
 import * as utils from '../utils';
 // Init calendar.
 chrome.identity.getAuthToken({ interactive: true }, async (token) => {
+  const calendar = new Calendar(token);
+  const cals = await calendar.getCalendars();
+  const canvas = new Canvas(await calendar.createCanvas());
   while (true) {
-    const calendar = new Calendar(token);
-    const cals = await calendar.getCalendars();
-    const canvas = new Canvas(await calendar.createCanvas());
     chrome.storage.local.get(['calendarID'], function (result) {
       console.log(result.calendarID);
     });
@@ -18,6 +18,7 @@ chrome.identity.getAuthToken({ interactive: true }, async (token) => {
     const events = (await calendar.getEvents()).items;
 
     for (let assignment of assignments) {
+      calendar.notifyUser(assignment);
       const event = events.find((val) => val.summary === assignment.title);
       if (!event) {
         console.log('Creating event', assignment);
@@ -27,6 +28,8 @@ chrome.identity.getAuthToken({ interactive: true }, async (token) => {
           await calendar.freeSpot(assignment);
         }
         await utils.sleep(5000);
+      } else if (assignment.due.getTime() - 120000 < new Date().getTime()) {
+        calendar.notifyUser(assignment);
       }
     }
     await utils.sleep(60000);
