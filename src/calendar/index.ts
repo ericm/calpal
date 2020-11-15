@@ -277,9 +277,18 @@ export default class Calendar {
   private $list: CalendarList[];
   private $eventsList: Event[];
   private $selected = 0;
+  private $id?: string;
+  private $canvas?: Calendar;
 
-  constructor(token: string) {
+  constructor(token: string, id?: string) {
     this.$token = token;
+    if (id) {
+      this.$id = id;
+    }
+  }
+
+  public set list(list: CalendarList[]) {
+    this.$list = list;
   }
 
   private headers(): Headers {
@@ -289,7 +298,15 @@ export default class Calendar {
     });
   }
 
+  public createCanvas(): Calendar {
+    const canvas = new Calendar(this.$token, this.getCanvasID());
+    canvas.list = this.$list;
+    this.$canvas = canvas;
+    return canvas;
+  }
+
   public getCanvasID(): string {
+    // TODO(Thomas007G): get from local storage
     return '';
   }
 
@@ -335,6 +352,9 @@ export default class Calendar {
   }
 
   public getCalendar(): CalendarList {
+    if (this.$id) {
+      return this.$list.find((val) => val.id === this.$id);
+    }
     if (this.$list?.length > this.$selected) {
       return this.$list[this.$selected];
     }
