@@ -79,7 +79,6 @@ function App() {
           value={calendarID}
           color="secondary"
           placeholder="Calendar ID"
-          // label="Calendar name"
         ></Input>
 
         <Button
