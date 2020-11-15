@@ -41,6 +41,11 @@ const useStyles = makeStyles((theme) =>
     input: {
       color: 'white',
     },
+    btn: {
+      '&:hover': {
+        backgroundColor: '#d69bdd'
+      }
+    }
   })
 );
 
@@ -93,6 +98,7 @@ function App() {
             });
             setTimeout(chrome.runtime.reload, 1000);
           }}
+          className={classes.btn}
         >
           Save
         </Button>
