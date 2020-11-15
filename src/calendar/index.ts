@@ -299,14 +299,23 @@ export default class Calendar {
   }
 
   public createCanvas(): Calendar {
-    const canvas = new Calendar(this.$token, this.getCanvasID());
-    canvas.list = this.$list;
-    this.$canvas = canvas;
-    return canvas;
+    let canvasID = this.getCanvasID();
+    if (canvasID != '') {
+      const canvas = new Calendar(this.$token);
+      canvas.list = this.$list;
+      this.$canvas = canvas;
+      return canvas;
+    } else {
+      return null;
+    }
   }
 
   public getCanvasID(): string {
-    // TODO(Thomas007G): get from local storage
+    chrome.storage.local.get(['calendarID'], function (result) {
+      if (!!result.calendarID) {
+        return result.calendarID;
+      }
+    });
     return '';
   }
 

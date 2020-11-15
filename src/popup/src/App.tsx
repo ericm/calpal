@@ -54,6 +54,9 @@ function App() {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 
+  const setCalendarSummary = () => {
+
+  }
   return (
     <ThemeProvider theme={theme}>
       <div className="App">
@@ -61,9 +64,15 @@ function App() {
           <h1>CalPal</h1>
           <small>Automating assignments, a few clicks away...</small>
         </header>
-        <Button variant="outlined" color="secondary">
-          Authenticate Canvas
-        </Button>
+        <TextField id="calendarid" className={classes.input} color="secondary" label="Calendar name"></TextField>
+
+        <Button variant="contained" color="primary" onClick={()=> {
+          chrome.storage.local.set({'calendarID': document.getElementById('calendarid').value})
+          chrome.storage.local.get(['calendarID'], function(result) {
+            console.log(result.calendarSummary);
+          })
+        }
+        }></Button>
       </div>
     </ThemeProvider>
   );
