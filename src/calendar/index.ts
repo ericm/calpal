@@ -402,6 +402,35 @@ export default class Calendar {
     );
   }
 
+  public async setNewTime(
+    assignment: Assignment,
+    newTime: number
+  ): Promise<number> {
+    return new Promise<number>((resolve) => {
+      chrome.storage.local.get(['assignments'], function (result) {
+        if (!!result.assignments) {
+          for (let result_assignment of result.assignments) {
+            if (result_assignment.title == assignment.title) {
+              const Time = result_assignment.time + newTime / 2;
+              result_assignment.time = Time;
+              resolve(Time);
+            }
+          }
+          chrome.storage.local.set({
+            assignments: { assignment, time: newTime },
+          });
+          resolve(newTime);
+        } else {
+          chrome.storage.local.set({
+            assignments: [{ assignment, time: newTime }],
+          });
+          resolve(newTime);
+        }
+      });
+      resolve(0);
+    });
+  }
+
   public async getFreeBusy(due: Date): Promise<FreeBusy> {
     const body: FreeBusyReq = {
       timeMin: new Date().toISOString(),
