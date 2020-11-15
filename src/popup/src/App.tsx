@@ -16,6 +16,8 @@ const theme = createMuiTheme({
     primary: {
       main: '#cf77d9',
       light: '#cf77d9',
+      dark: '#fff',
+      contrastText: '#fff',
     },
     secondary: {
       main: '#e6e6e6',
@@ -44,6 +46,14 @@ const useStyles = makeStyles((theme) =>
 function App() {
   const [activeStep, setActiveStep] = React.useState(0);
 
+  const [calendarID, setCalendarID] = React.useState('');
+  React.useEffect(() => {
+    chrome.storage.local.get(['calendarID'], function (result) {
+      console.log(result.calendarID);
+      setCalendarID(result.calendarID);
+    });
+  }, []);
+
   const classes = useStyles();
 
   const handleNext = () => {
@@ -54,9 +64,7 @@ function App() {
     setActiveStep((prevActiveStep) => prevActiveStep + 1);
   };
 
-  const setCalendarSummary = () => {
-
-  }
+  const setCalendarSummary = () => {};
   return (
     <ThemeProvider theme={theme}>
       <div className="App">
@@ -64,15 +72,32 @@ function App() {
           <h1>CalPal</h1>
           <small>Automating assignments, a few clicks away...</small>
         </header>
-        <TextField id="calendarid" className={classes.input} color="secondary" label="Calendar name"></TextField>
+        <TextField
+          id="calendarid"
+          className={classes.input}
+          value={calendarID}
+          color="primary"
+          style={{
+            color: '#fff !important',
+          }}
+          label="Calendar name"
+        ></TextField>
 
-        <Button variant="contained" color="primary" onClick={()=> {
-          chrome.storage.local.set({'calendarID': document.getElementById('calendarid').value})
-          chrome.storage.local.get(['calendarID'], function(result) {
-            console.log(result.calendarSummary);
-          })
-        }
-        }></Button>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => {
+            chrome.storage.local.set({
+              calendarID: (document.getElementById('calendarid') as any).value,
+            });
+            chrome.storage.local.get(['calendarID'], function (result) {
+              console.log(result.calendarSummary);
+            });
+            setTimeout(chrome.runtime.reload, 1000);
+          }}
+        >
+          Save
+        </Button>
       </div>
     </ThemeProvider>
   );

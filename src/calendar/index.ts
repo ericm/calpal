@@ -298,8 +298,8 @@ export default class Calendar {
     });
   }
 
-  public createCanvas(): Calendar {
-    let canvasID = this.getCanvasID();
+  public async createCanvas(): Promise<Calendar> {
+    let canvasID = await this.getCanvasID();
     if (canvasID != '') {
       const canvas = new Calendar(this.$token);
       canvas.list = this.$list;
@@ -310,13 +310,16 @@ export default class Calendar {
     }
   }
 
-  public getCanvasID(): string {
-    chrome.storage.local.get(['calendarID'], function (result) {
-      if (!!result.calendarID) {
-        return result.calendarID;
-      }
+  public async getCanvasID(): Promise<string> {
+    return new Promise<string>((resolve) => {
+      chrome.storage.local.get(['calendarID'], function (result) {
+        if (!!result.calendarID) {
+          resolve(result.calendarID);
+        } else {
+          resolve('');
+        }
+      });
     });
-    return '';
   }
 
   private async get<T>(slug: string): Promise<T> {
@@ -406,7 +409,7 @@ export default class Calendar {
   public async freeSpot(assignment: Assignment) {
     const data = await this.getFreeBusy(assignment.due);
     const busy = data.calendars[this.getCalendar().id]?.busy ?? [];
-    busy.concat(data.calendars[this.getCanvasID()]?.busy);
+    busy.concat(data.calendars[await this.getCanvasID()]?.busy);
     const duration = assignment.duration ?? Calendar.DEFAULT_HOURS;
 
     const numDays =

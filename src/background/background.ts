@@ -5,7 +5,7 @@ import Canvas from '../canvas';
 chrome.identity.getAuthToken({ interactive: true }, async (token) => {
   const calendar = new Calendar(token);
   const cals = await calendar.getCalendars();
-  const canvas = new Canvas(calendar.createCanvas());
+  const canvas = new Canvas(await calendar.createCanvas());
   const assignments = await canvas.getAssignments();
   console.log(assignments);
 
