@@ -467,7 +467,7 @@ export default class Calendar {
     return false;
   }
 
-  public async freeSpot(assignment: Assignment) {
+  public async freeSpot(assignment: Assignment): Promise<boolean> {
     let events = (await this.getEvents()).items;
     events = events.concat((await this.$canvas!!.getEvents()).items);
     events = events.sort(
@@ -505,12 +505,17 @@ export default class Calendar {
       if (end > assignment.due || start >= assignment.due) {
         continue;
       }
-      const hours = diff_hours(start, end);
+      let hours = diff_hours(start, end);
       if (
         start.getHours() < Calendar.DAY_START ||
         end.getHours() > Calendar.DAY_END
       ) {
         continue;
+      }
+      if (start.getDate() < end.getDate()) {
+        end = start;
+        end.setHours(Calendar.DAY_END);
+        hours = diff_hours(start, end);
       }
       if (hours >= assignment.duration && start.getDate() === end.getDate()) {
         console.log('start', start, 'end', end);
@@ -547,6 +552,9 @@ export default class Calendar {
       };
       console.log('POST EVENT', event);
       await this.createEvent(event);
+      return true;
+    } else {
+      return false;
     }
   }
 }
