@@ -406,6 +406,51 @@ export default class Calendar {
     );
   }
 
+  public async getAssTime(assignment: Assignment): Promise<number> {
+    return new Promise<number>((resolve) => {
+      chrome.storage.local.get(['assignments'], function (result) {
+        if (!!result.assignments) {
+          for (let ass of result.assignments) {
+            if (ass.title == assignment.title) {
+              resolve(ass.time);
+            }
+          }
+          resolve(2);
+        }
+      });
+      resolve(2);
+    });
+  }
+
+  public async setNewTime(
+    assignment: Assignment,
+    newTime: number
+  ): Promise<number> {
+    return new Promise<number>((resolve) => {
+      chrome.storage.local.get(['assignments'], function (result) {
+        if (!!result.assignments) {
+          for (let result_assignment of result.assignments) {
+            if (result_assignment.title == assignment.title) {
+              const Time = result_assignment.time + newTime / 2;
+              result_assignment.time = Time;
+              resolve(Time);
+            }
+          }
+          chrome.storage.local.set({
+            assignments: { assignment, time: newTime },
+          });
+          resolve(newTime);
+        } else {
+          chrome.storage.local.set({
+            assignments: [{ assignment, time: newTime }],
+          });
+          resolve(newTime);
+        }
+      });
+      resolve(0);
+    });
+  }
+
   public async getFreeBusy(due: Date): Promise<FreeBusy> {
     const body: FreeBusyReq = {
       timeMin: new Date().toISOString(),
@@ -434,7 +479,8 @@ export default class Calendar {
       (event) => new Date(event.end.dateTime ?? event.end.date) > new Date()
     );
     if (!assignment.duration) {
-      assignment.duration = Calendar.DEFAULT_HOURS;
+      // assignment.duration = Calendar.DEFAULT_HOURS;
+      assignment.duration = await this.getAssTime(assignment);
     }
 
     let maxSpace: { start: Date; end: Date; diff: number };
