@@ -1,6 +1,6 @@
 import Calendar, { EventAdd } from '../calendar';
 import Canvas from '../canvas';
-
+import * as utils from '../utils';
 // Init calendar.
 chrome.identity.getAuthToken({ interactive: true }, async (token) => {
   const calendar = new Calendar(token);
@@ -16,20 +16,12 @@ chrome.identity.getAuthToken({ interactive: true }, async (token) => {
   console.log('Calendars:', cals.items);
   const events = (await calendar.getEvents()).items;
 
-  const date = new Date();
-  date.setMonth(12);
-  calendar.freeSpot({
-    title: 'test',
-    due: date,
-    summary: 'gem',
-    link: 'https//google.com',
-  });
-
   for (let assignment of assignments) {
     const event = events.find((val) => val.summary === assignment.title);
     if (!event) {
       console.log('Creating event', assignment);
       await calendar.freeSpot(assignment);
+      await utils.sleep(5000);
     }
   }
 });

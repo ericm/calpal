@@ -26,3 +26,7 @@ export async function request<T extends Object>(
     console.error(e);
   }
 }
+
+export function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}

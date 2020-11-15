@@ -215,11 +215,11 @@ export interface EventAdd {
   description: string;
   start: {
     dateTime: string;
-    timeZone: string;
+    timeZone?: string;
   };
   end: {
     dateTime: string;
-    timeZone: string;
+    timeZone?: string;
   };
 }
 
@@ -267,10 +267,14 @@ const addDays = function (date: Date, days: number) {
   date.setDate(date.getDate() + days);
   return date;
 };
+const addHours = function (date: Date, hrs: number) {
+  date.setHours(date.getHours() + hrs);
+  return date;
+};
 function diff_hours(dt2: Date, dt1: Date): number {
-  var diff = (dt2.getTime() - dt1.getTime()) / 1000;
+  var diff = (dt1.getTime() - dt2.getTime()) / 1000;
   diff /= 60 * 60;
-  return Math.abs(Math.round(diff));
+  return Math.round(diff);
 }
 
 export default class Calendar {
@@ -423,8 +427,8 @@ export default class Calendar {
     events = events.concat((await this.$canvas!!.getEvents()).items);
     events = events.sort(
       (event, next) =>
-        new Date(event.end.dateTime ?? event.end.date).getTime() -
-        new Date(next.end.dateTime ?? next.end.date).getTime()
+        new Date(event.start.dateTime ?? event.start.date).getTime() -
+        new Date(next.start.dateTime ?? next.start.date).getTime()
     );
     events = events.filter(
       (event) => new Date(event.end.dateTime ?? event.end.date) > new Date()
@@ -433,19 +437,28 @@ export default class Calendar {
       assignment.duration = Calendar.DEFAULT_HOURS;
     }
 
-    const numDays =
-      Math.abs(assignment.due.getTime() - Date.now()) / (1000 * 60 * 60 * 24);
-
     let maxSpace: { start: Date; end: Date; diff: number };
     // console.log(events.length);
     for (let i = 0; i < events.length - 1; i++) {
       const event = events[i];
       const nextEvent = events[i + 1];
-      const end = new Date(event.end.dateTime ?? event.end.date);
-      if (end > assignment.due) {
-        break;
+      let end = new Date(nextEvent.start.dateTime ?? nextEvent.start.date);
+      let start = new Date(event.end.dateTime ?? event.end.date);
+      // console.log('start', start, 'end', end);
+      if (maxSpace?.start.getTime() === start.getTime()) {
+        maxSpace = undefined;
       }
-      const start = new Date(nextEvent.start.dateTime ?? nextEvent.start.date);
+      if (end.getHours() === 0) {
+        end = start;
+        end.setHours(Calendar.DAY_END);
+      }
+      // if (start.getHours() === 0) {
+      //   start = end;
+      //   start.setHours(Calendar.DAY_START);
+      // }
+      if (end > assignment.due || start >= assignment.due) {
+        continue;
+      }
       const hours = diff_hours(start, end);
       if (
         start.getHours() < Calendar.DAY_START ||
@@ -453,21 +466,41 @@ export default class Calendar {
       ) {
         continue;
       }
-      if (hours > assignment.duration && start.getDate() === end.getDate()) {
+      if (hours >= assignment.duration && start.getDate() === end.getDate()) {
+        console.log('start', start, 'end', end);
         if (maxSpace && maxSpace.start && maxSpace.end) {
           if (hours > maxSpace.diff) {
             maxSpace = { start, end, diff: hours };
           }
         } else {
           maxSpace = { start, end, diff: hours };
-          console.log(maxSpace);
         }
       }
     }
-    console.log(maxSpace);
+    console.log('MAX SPACE', maxSpace);
     if (!maxSpace && assignment.duration > 1) {
       assignment.duration--;
       await this.freeSpot(assignment);
+      return;
+    }
+    if (maxSpace) {
+      // Insert event object
+      const event: EventAdd = {
+        summary: assignment.title,
+        description: assignment.summary,
+        start: {
+          dateTime: maxSpace.start.toISOString(),
+          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        },
+        end: {
+          dateTime: new Date(
+            maxSpace.start.getTime() + assignment.duration * 3600000
+          ).toISOString(),
+          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        },
+      };
+      console.log('POST EVENT', event);
+      await this.createEvent(event);
     }
   }
 }
