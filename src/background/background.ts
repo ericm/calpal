@@ -6,6 +6,10 @@ chrome.identity.getAuthToken({ interactive: true }, async (token) => {
   const calendar = new Calendar(token);
   const cals = await calendar.getCalendars();
   const canvas = new Canvas(await calendar.createCanvas());
+  chrome.storage.local.get(['calendarID'], function (result) {
+    console.log(result.calendarID);
+  });
+  console.log(canvas);
   const assignments = await canvas.getAssignments();
   console.log(assignments);
 

@@ -437,6 +437,7 @@ export default class Calendar {
       Math.abs(assignment.due.getTime() - Date.now()) / (1000 * 60 * 60 * 24);
 
     let maxSpace: { start: Date; end: Date; diff: number };
+    // console.log(events.length);
     for (let i = 0; i < events.length - 1; i++) {
       const event = events[i];
       const nextEvent = events[i + 1];
@@ -448,17 +449,18 @@ export default class Calendar {
       const hours = diff_hours(start, end);
       if (
         start.getHours() < Calendar.DAY_START ||
-        end.getHours() < Calendar.DAY_END
+        end.getHours() > Calendar.DAY_END
       ) {
         continue;
       }
-      if (hours > assignment.duration && start.getDate() == end.getDate()) {
-        if (maxSpace) {
+      if (hours > assignment.duration && start.getDate() === end.getDate()) {
+        if (maxSpace && maxSpace.start && maxSpace.end) {
           if (hours > maxSpace.diff) {
             maxSpace = { start, end, diff: hours };
           }
         } else {
           maxSpace = { start, end, diff: hours };
+          console.log(maxSpace);
         }
       }
     }

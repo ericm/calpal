@@ -11,6 +11,7 @@ export interface Assignment {
 export default class Canvas {
   constructor(private $calendar: Calendar) {}
   public async getAssignments(): Promise<Assignment[]> {
+    console.log(this);
     let events = (await this.$calendar.getEvents()).items;
     events = events.filter(
       (val) =>
