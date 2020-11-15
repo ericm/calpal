@@ -307,7 +307,11 @@ export default class Calendar {
 
   public getCanvasID(): string {
     // TODO(Thomas007G): get from local storage
-    return '';
+    chrome.storage.local.get(['calendarID'], function (result) {
+      if (result.calendarID != '') {
+        return result.calendarID;
+      }
+    });
   }
 
   private async get<T>(slug: string): Promise<T> {
