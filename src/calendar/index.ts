@@ -301,7 +301,7 @@ export default class Calendar {
   public async createCanvas(): Promise<Calendar> {
     let canvasID = await this.getCanvasID();
     if (canvasID != '') {
-      const canvas = new Calendar(this.$token);
+      const canvas = new Calendar(this.$token, canvasID);
       canvas.list = this.$list;
       this.$canvas = canvas;
       return canvas;
