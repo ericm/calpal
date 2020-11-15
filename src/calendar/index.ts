@@ -411,6 +411,13 @@ export default class Calendar {
     return await this.post('freeBusy', body);
   }
 
+  public async notifyUser(due: Date): Promise<boolean> {
+    let not = new Notification('CalPal', {
+      body: 'Are you finished your assignment? Want to schedule more time?',
+    });
+    return false;
+  }
+
   public async freeSpot(assignment: Assignment) {
     let events = (await this.getEvents()).items;
     events = events.concat((await this.$canvas!!.getEvents()).items);
