@@ -301,6 +301,13 @@ export default class Calendar {
         const assignment = this.$notifications[id];
         assignment.duration = Calendar.DEFAULT_HOURS - 1;
         this.freeSpot(assignment);
+        chrome.notifications.create(assignment.title + 'success', {
+          type: 'basic',
+          title: `Successfully rescheduled ${assignment.title}`,
+          message: `Check your calendar :)`,
+          iconUrl:
+            'https://raw.githubusercontent.com/ericm/calpal/master/docs/logo.png',
+        });
       }
     });
   }
@@ -473,7 +480,7 @@ export default class Calendar {
 
   public async notifyUser(assignment: Assignment): Promise<boolean> {
     chrome.notifications.create(
-      'CalPal',
+      assignment.title,
       {
         type: 'basic',
         title: `Are you finished your assignment ${assignment.title}?`,
