@@ -74,7 +74,7 @@ const App = () => {
           <h1>CalPal</h1>
           <small>Automating assignments, a few clicks away...</small>
         </header>
-        {calendarid === '' && (
+        {!calendarid && (
           <div>
             <Input
               id="calendarid"

@@ -6,6 +6,7 @@
   "description": "Chrome Extension to manage/automate your time spent.",
   "permissions": [
     "identity",
+    "identity.email",
     "https://ssl.gstatic.com/",
     "https://www.googleapis.com/",
     "https://accounts.google.com/",
