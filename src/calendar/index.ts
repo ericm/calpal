@@ -288,12 +288,21 @@ export default class Calendar {
   private $selected = 0;
   private $id?: string;
   private $canvas?: Calendar;
+  private $notifications: { [id: string]: Assignment } = {};
 
   constructor(token: string, id?: string) {
     this.$token = token;
     if (id) {
       this.$id = id;
     }
+    chrome.notifications.onButtonClicked.addListener((id, i) => {
+      if (id in this.$notifications && !i) {
+        // Assignment must be rescheduled
+        const assignment = this.$notifications[id];
+        assignment.duration = Calendar.DEFAULT_HOURS - 1;
+        this.freeSpot(assignment);
+      }
+    });
   }
 
   public set list(list: CalendarList[]) {
@@ -310,10 +319,11 @@ export default class Calendar {
   public async createCanvas(): Promise<Calendar> {
     let canvasID = await this.getCanvasID();
     console.log('CANVAS ID:', canvasID);
-    if (!canvasID) {
+    if (canvasID) {
       const canvas = new Calendar(this.$token, canvasID);
       canvas.list = this.$list;
       this.$canvas = canvas;
+      console.log('CAL CAL', canvas);
       return canvas;
     } else {
       return null;
@@ -462,11 +472,20 @@ export default class Calendar {
   }
 
   public async notifyUser(assignment: Assignment): Promise<boolean> {
-    chrome.notifications.create('CalPal', {
-      type: 'basic',
-      title: `Are you finished your assignment ${assignment.title}?`,
-      message: `Want to schedule more time?`,
-    });
+    chrome.notifications.create(
+      'CalPal',
+      {
+        type: 'basic',
+        title: `Are you finished your assignment ${assignment.title}?`,
+        message: `Want to schedule more time?`,
+        buttons: [{ title: 'Yes' }, { title: 'No' }],
+        iconUrl:
+          'https://raw.githubusercontent.com/ericm/calpal/master/docs/logo.png',
+      },
+      (id) => {
+        this.$notifications[id] = assignment;
+      }
+    );
     return false;
   }
 

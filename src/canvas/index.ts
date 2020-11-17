@@ -19,7 +19,6 @@ export default class Canvas {
   }
 
   public async getAssignments(): Promise<Assignment[]> {
-    console.log(this);
     let events = (await this.$calendar.getEvents()).items;
     events = events.filter(
       (val) =>

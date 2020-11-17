@@ -1,6 +1,10 @@
 import Calendar, { EventAdd } from '../calendar';
-import Canvas from '../canvas';
+import Canvas, { Assignment } from '../canvas';
 import * as utils from '../utils';
+
+const DIFF = 5;
+const store: { [ass: string]: boolean } = {};
+
 // Init calendar.
 chrome.identity.getAuthToken({ interactive: true }, async (token) => {
   chrome.identity.getProfileUserInfo(async (user) => {
@@ -20,7 +24,6 @@ chrome.identity.getAuthToken({ interactive: true }, async (token) => {
       const events = (await calendar.getEvents()).items;
 
       for (let assignment of assignments) {
-        calendar.notifyUser(assignment);
         const event = events.find((val) => val.summary === assignment.title);
         if (!event) {
           console.log('Creating event', assignment);
@@ -30,7 +33,12 @@ chrome.identity.getAuthToken({ interactive: true }, async (token) => {
             await calendar.freeSpot(assignment);
           }
           await utils.sleep(5000);
-        } else if (assignment.due.getTime() - 120000 < new Date().getTime()) {
+        } else if (
+          utils.diffMinutes(assignment.due, new Date()) < DIFF &&
+          !store[assignment.title]
+        ) {
+          console.log('NOTIFYING', assignment);
+          store[assignment.title] = true;
           calendar.notifyUser(assignment);
         }
       }

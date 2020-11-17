@@ -30,3 +30,7 @@ export async function request<T extends Object>(
 export function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+export function diffMinutes(d1: Date, d2: Date): number {
+  return Math.floor(Math.abs(d1.getTime() - d2.getTime()) / 1000 / 60);
+}
